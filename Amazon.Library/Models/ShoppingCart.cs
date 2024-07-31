@@ -6,7 +6,14 @@ using System.Threading.Tasks;
 
 namespace Amazon.Library.Models
 {
-    internal class ShoppingCart
+    public class ShoppingCart
     {
+        public int Id { get; set; }
+        public string Name { get; set; }
+
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 }
