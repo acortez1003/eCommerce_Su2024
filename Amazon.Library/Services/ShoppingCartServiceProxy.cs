@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Amazon.Library.DTO;
 using Amazon.Library.Models;
 
 namespace Amazon.Library.Services
@@ -48,6 +49,37 @@ namespace Amazon.Library.Services
                     }
                 }
                 return instance;
+            }
+        }
+
+        public void AddToCart(ProductDTO newProduct, int id)
+        {
+            var cartToUse = Carts.FirstOrDefault(c => c.Id == id);
+            if (cartToUse == null || cartToUse.Contents == null)
+            {
+                return;
+            }
+
+            var existingProduct = cartToUse?.Contents?
+                .FirstOrDefault(existingProducts => existingProducts.Id == newProduct.Id);
+
+            var inventoryProduct = InventoryServiceProxy.Current.Products.FirstOrDefault(invProd => invProd.Id == newProduct.Id);
+            if (inventoryProduct == null)
+            {
+                return;
+            }
+
+            inventoryProduct.Quantity -= newProduct.Quantity;
+
+            if (existingProduct != null)
+            {
+                // update
+                existingProduct.Quantity += newProduct.Quantity;
+            }
+            else
+            {
+                //add
+                cartToUse?.Contents?.Add(newProduct);
             }
         }
     }

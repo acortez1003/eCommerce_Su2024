@@ -14,6 +14,15 @@ namespace Amazon.Library.Services
         private static object instanceLock = new object();
         private List<ProductDTO> products;
 
+        private InventoryServiceProxy()
+        {
+            products = new List<ProductDTO>
+            {
+                new ProductDTO {Id = 1, Name = "Apple", Description = "fruit", Price = 2.0m, Quantity = 50},
+                new ProductDTO {Id = 2, Name = "Cucumber", Description = "veg", Price = 2.5m, Quantity = 25 }
+            };
+        }
+
         public ReadOnlyCollection<ProductDTO> Products
         {
             get
@@ -39,18 +48,30 @@ namespace Amazon.Library.Services
 
         public Task<ProductDTO> AddOrUpdate(ProductDTO p)
         {
-            //TODO: stuff
+            var existingProduct = products.FirstOrDefault(prod => prod.Id == p.Id);
+            if (existingProduct != null)
+            {
+                existingProduct.Name = p.Name;
+                existingProduct.Description = p.Description;
+                existingProduct.Price = p.Price;
+                existingProduct.Quantity = p.Quantity;
+            }
+            else
+            {
+                p.Id = products.Any() ? products.Max(prod => prod.Id) + 1 : 1;
+                products.Add(p);
+            }
+            return Task.FromResult(p);
         }
 
         public Task<ProductDTO?> Delete(int id)
         {
-            var itemToDelete = Products.FirstOrDefault(p => p.Id == id);
-            if(itemToDelete == null)
+            var itemToDelete = products.FirstOrDefault(p => p.Id == id);
+            if (itemToDelete != null)
             {
-                return null;
+                products.Remove(itemToDelete);
             }
-            products.Remove(itemToDelete);
-            return itemToDelete;
+            return Task.FromResult(itemToDelete);
         }
     }
 }

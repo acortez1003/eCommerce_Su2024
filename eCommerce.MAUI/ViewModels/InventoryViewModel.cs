@@ -7,36 +7,38 @@ using Amazon.Library.Services;
 
 namespace eCommerce.MAUI.ViewModels
 {
-    public class InventoryViewModel
+    public class InventoryViewModel : INotifyPropertyChanged
     {
         public string? Query {  get; set; }
         public List<ProductViewModel> Products
         {
             get
             {
-                return InventoryServiceProxy.Current.Products.Where(p=>p != null)
+                return InventoryServiceProxy.Current.Products.Where(p => p != null)
                     .Select(p => new ProductViewModel(p)).ToList()
                     ?? new List<ProductViewModel>();
             }
         }
 
-        public ProductViewModel? SelectProduct { get; set; }
+        public ProductViewModel? SelectedProduct { get; set; }
 
         public void Edit()
         {
             Shell.Current.GoToAsync($"//Product?productId={SelectedProduct?.Model?.Id ?? 0}");
         }
 
-        public async void Delete()
+        public async Task Delete()
         {
-            await InventoryServiceProxy.Current.Delete(SelectProduct?.Model?.Id ?? 0);
-            Refresh();
+            if(SelectedProduct != null)
+            {
+                await InventoryServiceProxy.Current.Delete(SelectedProduct.Model.Id);
+                Refresh();
+            }
         }
 
         public async void Refresh()
         {
-            await InventoryServiceProxy.Current.Search(new Query(Query));
-            Refresh();
+            NotifyPropertyChanged(nameof(Products));
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

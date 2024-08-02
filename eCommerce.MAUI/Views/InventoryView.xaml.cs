@@ -9,18 +9,23 @@ public partial class InventoryView : ContentPage
 		BindingContext = new InventoryViewModel();
 	}
 
-	private void CancelClicked(object sender, EventArgs e)
+	private async void CancelClicked(object sender, EventArgs e)
 	{
-		Shell.Current.GoToAsync("//MainPage");
+		await Shell.Current.GoToAsync("//MainPage");
 	}
 
 	private void AddClicked(object sender, EventArgs e)
 	{
-		Shell.Current.GoToAsync("//Product")
+		Shell.Current.GoToAsync("//Product");
 	}
 
 	private void EditClicked(object sender, EventArgs e)
 	{
 		(BindingContext as InventoryViewModel)?.Edit();
+	}
+
+	private void DeleteClicked(object sender, EventArgs e)
+	{
+		(BindingContext as InventoryViewModel)?.Delete();
 	}
 }
