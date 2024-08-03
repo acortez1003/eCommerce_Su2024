@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using Amazon.Library.DTO;
 using Amazon.Library.Models;
 using Amazon.Library.Services;
 
@@ -26,7 +20,7 @@ namespace eCommerce.MAUI.ViewModels
             set
             {
                 inventoryQuery = value;
-                NotifyPropertyChanged();
+                NotifyPropertyChanged(nameof(Products));
             }
             get
             {
@@ -57,7 +51,12 @@ namespace eCommerce.MAUI.ViewModels
             set
             {
                 selectedCart = value;
+                NotifyPropertyChanged(nameof(SelectedCart));
                 NotifyPropertyChanged(nameof(ProductsInCart));
+                NotifyPropertyChanged(nameof(TotalPrice));
+                NotifyPropertyChanged(nameof(TaxRate));
+                NotifyPropertyChanged(nameof(BOGODiscount));
+                NotifyPropertyChanged(nameof(TotalPriceWithTax));
             }
         }
 
@@ -89,11 +88,82 @@ namespace eCommerce.MAUI.ViewModels
                 productToBuy = value;
                 if (productToBuy != null && productToBuy.Model == null)
                 {
-                    productToBuy.Model = new ProductDTO();
+                    productToBuy.Model = new Product();
                 } else if (productToBuy != null && productToBuy != null)
                 {
-                    productToBuy.Model = new ProductDTO(productToBuy.Model);
+                    productToBuy.Model = new Product(productToBuy.Model);
                 }
+            }
+        }
+
+        public decimal TaxRate
+        {
+            get => ShoppingCartServiceProxy.Current.TaxRate;
+            set
+            {
+                if (ShoppingCartServiceProxy.Current.TaxRate != value)
+                {
+                    ShoppingCartServiceProxy.Current.TaxRate = value;
+                    NotifyPropertyChanged(nameof(TaxRate));
+                    NotifyPropertyChanged(nameof(TotalPriceWithTax));
+                }
+            }
+        }
+
+        public decimal TotalPrice
+        {
+            get
+            {
+                if (SelectedCart == null || SelectedCart.Contents == null)
+                    return 0;
+
+                return SelectedCart.Contents.Sum(p =>                
+                {
+                    var price = p.Price;
+                    var markdown = p.Markdown;
+
+                    if (markdown != 0)
+                    {
+                        return (price - markdown) * p.Quantity;
+                    }
+                    return price * p.Quantity;
+                });
+            }
+        }
+
+        public decimal BOGODiscount
+        {
+            get
+            {
+                if (SelectedCart == null || SelectedCart.Contents == null)
+                    return 0;
+                return SelectedCart.Contents.Sum(p =>
+                {
+                    var product = p as Product;
+                    if (product != null && InventoryServiceProxy.Current.IsBOGO(product.Id))
+                    {
+                        int fq = product.Quantity / 2;
+                        return product.Price * fq;
+                    }
+                    return 0;
+                });
+            }
+        }
+
+        public decimal TotalWithDiscount
+        {
+            get
+            {
+                return TotalPrice - BOGODiscount;
+            }
+        }
+
+        public decimal TotalPriceWithTax
+        {
+            get
+            {
+                decimal totalPrice = TotalWithDiscount;
+                return totalPrice + (totalPrice * (TaxRate/100));
             }
         }
 
@@ -116,6 +186,7 @@ namespace eCommerce.MAUI.ViewModels
             ProductToBuy = null;
             NotifyPropertyChanged(nameof(Products));
             NotifyPropertyChanged(nameof(Carts));
+            NotifyPropertyChanged(nameof(ProductsInCart));
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

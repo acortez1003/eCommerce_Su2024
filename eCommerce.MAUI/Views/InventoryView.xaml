@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="eCommerce.MAUI.Views.InventoryView"
              Title="InventoryView">
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition/>
@@ -14,13 +15,15 @@
                 ItemsSource="{Binding Products}"
                 SelectedItem="{Binding SelectedProduct}"
                 Grid.Row="1"
-                Margin="5"
-                >
+                Margin="5">
+
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <ViewCell>
                         <Grid>
                             <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
                                 <ColumnDefinition/>
                                 <ColumnDefinition/>
                                 <ColumnDefinition Width="5*"/>
@@ -29,8 +32,10 @@
 
                             <Label Grid.Column="0" Text="{Binding Model.Id}"/>
                             <Label Grid.Column="1" Text="{Binding DisplayPrice}"/>
-                            <Label Grid.Column="2" Text="{Binding Model.Name}"/>
-                            <Label Grid.Column="3" Text="{Binding Model.Quantity}"/>
+                            <Label Grid.Column="2" Text="{Binding DisplayMarkdown}"/>
+                            <Label Grid.Column="3" Text="{Binding Model.Name}"/>
+                            <Label Grid.Column="4" Text="{Binding Model.IsBOGO}" />
+                            <Label Grid.Column="5" Text="{Binding Model.Quantity}"/>
                         </Grid>
                     </ViewCell>
                 </DataTemplate>
@@ -51,20 +56,29 @@
                     <ColumnDefinition/>
                     <ColumnDefinition/>
                     <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
                 <Button Text="Add Product"
-                    Clicked="AddClicked"
-                    Grid.Column="0"/>
+                        Clicked="AddClicked"
+                        Grid.Column="4"/>
                 <Button Text="Edit Product"
-                    Clicked="EditClicked"
-                    Grid.Column="2"/>
+                        Clicked="EditClicked"
+                        Grid.Column="5"/>
                 <Button Text="Delete Product"
-                    Clicked="DeleteClicked"
-                    Grid.Column="3"/>
+                        Clicked="DeleteClicked"
+                        Grid.Column="6"/>
+                <Button Text="Edit tax rate"
+                        Clicked="TaxClicked"
+                        Grid.Column="0" />
+                <Button Text="BOGO"
+                        Clicked="BOGOClicked"
+                        Grid.Column="1" />
             </Grid>
 
             <Button
-                Text="Cancel"
+                Text="Back"
                 Clicked="CancelClicked"
                 Grid.Row="2"/>
         </Grid>

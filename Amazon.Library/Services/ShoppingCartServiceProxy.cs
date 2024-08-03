@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Amazon.Library.DTO;
 using Amazon.Library.Models;
+using System.Collections.ObjectModel;
 
 namespace Amazon.Library.Services
 {
@@ -22,28 +22,54 @@ namespace Amazon.Library.Services
             }
         }
 
+        private ShoppingCartServiceProxy()
+        {
+            carts = new List<ShoppingCart>() { new ShoppingCart { Id = 1, Name = "My Cart" } };
+            taxRate = 7m;
+        }
+
+        private decimal taxRate;
+        public decimal TaxRate
+        {
+            get
+            {
+                return taxRate;
+            }
+            set
+            {
+                taxRate = value;
+            }
+        }
+        public decimal TotalPrice(ShoppingCart cart)
+        {
+                return cart.Contents.Sum(p => p.Price * p.Quantity);
+        }
+        public decimal CalculateTotalPriceWithTax(ShoppingCart cart)
+        {
+            decimal totalPrice = TotalPrice(cart);
+            decimal taxAmount = totalPrice * TaxRate;
+            return totalPrice + taxAmount;
+        }
+
         public ShoppingCart AddCart(ShoppingCart cart)
         {
-            if(cart.Id == 0)
+            if (cart.Id == 0)
             {
                 cart.Id = carts.Select(c => c.Id).Max() + 1;
             }
-            carts.Add(cart);
-            return cart;
-        }
 
-        private ShoppingCartServiceProxy()
-        {
-            carts = new List<ShoppingCart>() { new ShoppingCart() { Id = 1, Name = "My Cart" } };
+            carts.Add(cart);
+
+            return cart;
         }
 
         public static ShoppingCartServiceProxy Current
         {
             get
             {
-                lock(instanceLock)
+                lock (instanceLock)
                 {
-                    if(instance == null)
+                    if (instance == null)
                     {
                         instance = new ShoppingCartServiceProxy();
                     }
@@ -52,7 +78,7 @@ namespace Amazon.Library.Services
             }
         }
 
-        public void AddToCart(ProductDTO newProduct, int id)
+        public void AddToCart(Product newProduct, int id)
         {
             var cartToUse = Carts.FirstOrDefault(c => c.Id == id);
             if (cartToUse == null || cartToUse.Contents == null)
@@ -82,5 +108,6 @@ namespace Amazon.Library.Services
                 cartToUse?.Contents?.Add(newProduct);
             }
         }
+
     }
 }

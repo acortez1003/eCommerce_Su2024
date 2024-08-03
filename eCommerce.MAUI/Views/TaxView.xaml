@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="eCommerce.MAUI.Views.TaxView"
+             Title="TaxView">
+    <VerticalStackLayout>
+        <Label Text="Pick a tax rate (1 - 15%]: " />
+        <Entry x:Name="TaxEntry" Text="{Binding Tax}"/>
+        <Label x:Name="ErrorLabel" TextColor="Red" />
+        <Label Text="{Binding TaxRate, StringFormat='Current Tax Rate: {0}%'}" />
+        <Button Clicked="OkClicked" Text="Ok"/>
+        <Button Clicked="CancelClicked" Text="Cancel"/>
+    </VerticalStackLayout>
+</ContentPage>

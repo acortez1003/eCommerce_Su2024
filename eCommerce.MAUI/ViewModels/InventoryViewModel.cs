@@ -1,8 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using Amazon.Library.DTO;
 using Amazon.Library.Models;
-using Amazon.Library.Services;
 using Amazon.Library.Services;
 
 namespace eCommerce.MAUI.ViewModels
@@ -22,18 +20,29 @@ namespace eCommerce.MAUI.ViewModels
 
         public ProductViewModel? SelectedProduct { get; set; }
 
+
         public void Edit()
         {
             Shell.Current.GoToAsync($"//Product?productId={SelectedProduct?.Model?.Id ?? 0}");
         }
 
-        public async Task Delete()
+        public void Delete()
         {
             if(SelectedProduct != null)
             {
-                await InventoryServiceProxy.Current.Delete(SelectedProduct.Model.Id);
+                InventoryServiceProxy.Current.Delete(SelectedProduct.Model.Id);
                 Refresh();
             }
+        }
+
+        public void Markdown()
+        {
+
+        }
+
+        public void BOGO()
+        {
+            
         }
 
         public async void Refresh()

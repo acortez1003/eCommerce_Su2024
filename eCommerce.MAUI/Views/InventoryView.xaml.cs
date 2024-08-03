@@ -1,3 +1,4 @@
+using Amazon.Library.Services;
 using eCommerce.MAUI.ViewModels;
 namespace eCommerce.MAUI.Views;
 
@@ -28,4 +29,40 @@ public partial class InventoryView : ContentPage
 	{
 		(BindingContext as InventoryViewModel)?.Delete();
 	}
+
+	private void TaxClicked(object sender, EventArgs e)
+	{
+		Shell.Current.GoToAsync("//Tax");
+	}
+
+	private void MarkdownClicked(object sender, EventArgs e)
+	{
+		Shell.Current.GoToAsync("//Markdown");
+	}
+
+	private void BOGOClicked(object sender, EventArgs e)
+	{
+		var button = sender as Button;
+		var viewModel = BindingContext as InventoryViewModel;
+
+		if(viewModel != null && viewModel.SelectedProduct != null)
+		{
+			viewModel.SelectedProduct.IsBOGO = !viewModel.SelectedProduct.IsBOGO;
+
+			var product = InventoryServiceProxy.Current.Products.
+				FirstOrDefault(p => p.Id == viewModel.SelectedProduct?.Model?.Id);
+			if(product != null)
+			{
+				product.IsBOGO = viewModel.SelectedProduct.IsBOGO;
+				InventoryServiceProxy.Current.AddOrUpdate(product);
+			}
+			viewModel.Refresh();
+		}
+	}
+
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+		(BindingContext as InventoryViewModel)?.Refresh();
+    }
 }

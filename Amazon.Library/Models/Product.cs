@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Amazon.Library.DTO;
 
 namespace Amazon.Library.Models
 {
@@ -14,6 +13,8 @@ namespace Amazon.Library.Models
         public decimal Price { get; set; }
         public int Id { get; set; }
         public int Quantity { get; set; }
+        public bool IsBOGO { get; set; }
+        public decimal Markdown { get; set; }
 
         public Product() { }
 
@@ -24,15 +25,7 @@ namespace Amazon.Library.Models
             Price = p.Price;
             Id = p.Id;
             Quantity = p.Quantity;
-        }
-
-        public Product(ProductDTO d)
-        {
-            Name = d.Name;
-            Description = d.Description;    
-            Price = d.Price;
-            Id = d.Id;
-            Quantity = d.Quantity;
+            Markdown = p.Markdown;
         }
     }
 }

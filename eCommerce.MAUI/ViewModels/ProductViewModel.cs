@@ -1,25 +1,48 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Amazon.Library.DTO;
-using Amazon.Library.Services;
+﻿using Amazon.Library.Services;
+using System.Runtime.CompilerServices;
+using System.ComponentModel;
+using Amazon.Library.Models;
 
 namespace eCommerce.MAUI.ViewModels
 {
-    public class ProductViewModel
+    public class ProductViewModel : INotifyPropertyChanged
     {
+        private Product? model;
+        public Product? Model
+        {
+            get => model;
+            set
+            {
+                model = value;
+                NotifyPropertyChanged();
+                NotifyPropertyChanged(nameof(DisplayPrice));
+                NotifyPropertyChanged(nameof(DisplayMarkdown));
+            }
+        }
+
         public override string ToString()
         {
-            if(Model == null)
+            if (Model == null)
             {
                 return string.Empty;
             }
-            return $"{Model.Id} - {Model.Name} - {Model.Price:C}";
+            return $"{Model.Id} - {Model.Name} - {Model.Price:C} - {Model.Markdown}";
         }
 
-        public ProductDTO? Model { get; set; }
+        private bool isBOGO;
+        public bool IsBOGO
+        {
+            get => isBOGO;
+            set
+            {
+                if(isBOGO != value)
+                {
+                    isBOGO = value;
+                    NotifyPropertyChanged(nameof(IsBOGO));
+                    NotifyPropertyChanged(nameof(DisplayPrice));
+                }
+            }
+        }
 
         public string DisplayPrice
         {
@@ -37,14 +60,63 @@ namespace eCommerce.MAUI.ViewModels
         {
             set
             {
-                if(Model == null )
+                if (Model == null)
                 {
                     return;
                 }
-                if(decimal.TryParse(value, out var price))
+                if (decimal.TryParse(value, out var price))
                 {
                     Model.Price = price;
-                }else { }
+                }
+                else
+                {
+
+                }
+            }
+        }
+
+        public string DisplayMarkdown
+        {
+            get
+            {
+                if (Model == null)
+                {
+                    return string.Empty;
+                }
+                return $"{Model.Markdown:C}";
+            }
+        }
+
+        public string MarkdownAsString
+        {
+            set
+            {
+                if (Model == null)
+                {
+                    return;
+                }
+                if (decimal.TryParse(value, out var price))
+                {
+                    Model.Markdown = price;
+                }
+                else
+                {
+
+                }
+            }
+        }
+
+        public decimal Markdown
+        {
+            get => Model?.Markdown ?? 0;
+            set
+            {
+                if (Model != null)
+                {
+                    Model.Markdown = value;
+                    NotifyPropertyChanged(nameof(Markdown));
+                    NotifyPropertyChanged(nameof(DisplayMarkdown));
+                }
             }
         }
 
@@ -52,35 +124,50 @@ namespace eCommerce.MAUI.ViewModels
         {
             if(productId == 0)
             {
-                Model = new ProductDTO();
+                Model = new Product();
             }
             else
             {
                 Model = InventoryServiceProxy
                     .Current
                     .Products.FirstOrDefault(p => p.Id == productId)
-                    ?? new ProductDTO();
+                    ?? new Product();
             }
         }
 
-        public ProductViewModel(ProductDTO? model)
+        public ProductViewModel(Product? model)
         {
             if(model != null)
             {
                 Model = model;
+                IsBOGO = model.IsBOGO;
             }
             else
             {
-                Model = new ProductDTO();
+                Model = new Product();
             }
         }
 
-        public async void Add()
+        public void Add()
         {
-            if(Model == null )
+            if(Model != null )
             {
-                Model = await InventoryServiceProxy.Current.AddOrUpdate(Model);
+                Model =  InventoryServiceProxy.Current.AddOrUpdate(Model);
+                Refresh();
             }
+        }
+
+        public void Refresh()
+        {
+            NotifyPropertyChanged(nameof(Model));
+            NotifyPropertyChanged(nameof(Product));
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

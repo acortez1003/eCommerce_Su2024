@@ -1,22 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
-using Amazon.Library.DTO;
 
 namespace Amazon.Library.Models
 {
     public class ShoppingCart
     {
         public int Id { get; set; }
-        public List<ProductDTO> Contents { get; set; }
+        public List<Product> Contents { get; set; } = new List<Product>();
         public string Name { get; set; }
 
-        public ShoppingCart()
-        {
-            Contents = new List<ProductDTO>();
-        }
+        public ShoppingCart() { }
 
         public override string ToString()
         {
